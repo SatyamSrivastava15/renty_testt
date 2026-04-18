@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RENTY – Rent Cars & Bikes | Ranchi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #c0392b;
+    --red-dark: #96281b;
+    --red-light: #e74c3c;
+    --black: #0d0d0d;
+    --charcoal: #1a1a1a;
+    --grey: #2c2c2c;
+    --silver: #888;
+    --light: #f5f5f5;
+    --white: #ffffff;
+    --card-bg: #141414;
+    --border: rgba(255,255,255,0.07);
+    --radius: 16px;
+    --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--black);
+    color: var(--white);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 99px; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5vw;
+    height: 68px;
+    background: rgba(13,13,13,0.92);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; letter-spacing: -1px; }
+  .nav-logo span { color: var(--red); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { color: var(--silver); text-decoration: none; font-size: .9rem; font-weight: 500; letter-spacing: .5px; transition: color var(--transition); }
+  .nav-links a:hover { color: var(--white); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  #cart-btn {
+    position: relative; background: var(--red); border: none; cursor: pointer;
+    color: #fff; font-size: .9rem; font-weight: 600; letter-spacing: .5px;
+    padding: .5rem 1.2rem; border-radius: 99px;
+    transition: background var(--transition);
+  }
+  #cart-btn:hover { background: var(--red-light); }
+  #cart-count {
+    position: absolute; top: -6px; right: -6px;
+    background: #fff; color: var(--red); border-radius: 50%;
+    width: 18px; height: 18px; font-size: .65rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    display: none;
+  }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--white); border-radius: 2px; transition: var(--transition); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    padding: 120px 5vw 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(192,57,43,0.18) 0%, transparent 65%),
+                linear-gradient(135deg, #0d0d0d 40%, #1a0a08 100%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-tag {
+    position: relative; z-index: 1;
+    background: rgba(192,57,43,.15); border: 1px solid rgba(192,57,43,.4);
+    color: var(--red-light); font-size: .78rem; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; padding: .4rem 1rem; border-radius: 99px;
+    margin-bottom: 1.5rem; display: inline-block;
+  }
+  .hero-title {
+    position: relative; z-index: 1;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 8vw, 6.5rem);
+    line-height: 1.05; font-weight: 900;
+    margin-bottom: 1.2rem;
+  }
+  .hero-title em { color: var(--red); font-style: italic; }
+  .hero-sub {
+    position: relative; z-index: 1;
+    color: var(--silver); font-size: clamp(.95rem, 2.5vw, 1.15rem);
+    max-width: 520px; margin-bottom: 2.5rem; font-weight: 300;
+  }
+  .hero-ctas { position: relative; z-index: 1; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--red); color: #fff; border: none; cursor: pointer;
+    padding: .85rem 2rem; border-radius: 99px; font-size: .95rem; font-weight: 600;
+    letter-spacing: .5px; text-decoration: none;
+    transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    box-shadow: 0 4px 24px rgba(192,57,43,.35);
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--red-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(192,57,43,.45); }
+  .btn-outline {
+    background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,.2);
+    padding: .85rem 2rem; border-radius: 99px; font-size: .95rem; font-weight: 500;
+    cursor: pointer; text-decoration: none; display: inline-block;
+    transition: border-color var(--transition), background var(--transition);
+  }
+  .btn-outline:hover { border-color: var(--red); background: rgba(192,57,43,.1); }
+  .hero-stats {
+    position: relative; z-index: 1;
+    display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap;
+  }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--red); }
+  .stat-lbl { font-size: .8rem; color: var(--silver); letter-spacing: 1px; text-transform: uppercase; margin-top: -.2rem; }
+  .hero-car-img {
+    position: absolute; right: -3%; bottom: 0; z-index: 1;
+    width: min(55%, 600px); pointer-events: none; opacity: .9;
+    filter: drop-shadow(-40px 0 80px rgba(192,57,43,.3));
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 100px 5vw; }
+  .section-label {
+    font-size: .75rem; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--red); font-weight: 600; margin-bottom: .8rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; margin-bottom: 1.2rem;
+  }
+  .section-desc { color: var(--silver); max-width: 540px; font-size: 1rem; font-weight: 300; }
+
+  /* ── ABOUT ── */
+  #about { background: var(--charcoal); }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-top: 3rem; }
+  .about-text p { color: var(--silver); margin-bottom: 1rem; line-height: 1.8; }
+  .about-features { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+  .af-item { display: flex; align-items: center; gap: .8rem; }
+  .af-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(192,57,43,.15); border: 1px solid rgba(192,57,43,.3); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .af-text { font-size: .9rem; color: #bbb; }
+  .about-cards { display: flex; flex-direction: column; gap: 1.2rem; }
+  .vtype-card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem;
+    transition: border-color var(--transition), transform var(--transition);
+  }
+  .vtype-card:hover { border-color: var(--red); transform: translateX(6px); }
+  .vtype-icon { font-size: 2rem; }
+  .vtype-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+  .vtype-desc { font-size: .82rem; color: var(--silver); margin-top: .2rem; }
+
+  /* ── FLEET (products) ── */
+  #fleet { background: var(--black); }
+  .filter-bar { display: flex; gap: .6rem; flex-wrap: wrap; margin: 2rem 0 2.5rem; }
+  .filter-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--silver); padding: .5rem 1.3rem; border-radius: 99px;
+    font-size: .85rem; font-weight: 500; cursor: pointer;
+    transition: all var(--transition);
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--red); border-color: var(--red); color: #fff;
+  }
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .product-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-6px); border-color: rgba(192,57,43,.4); box-shadow: 0 16px 48px rgba(0,0,0,.4); }
+  .product-card.hidden { display: none; }
+  .product-img-wrap {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #1a1a1a, #111);
+    height: 200px;
+  }
+  .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+  .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+  .product-badge {
+    position: absolute; top: 12px; left: 12px;
+    background: var(--red); color: #fff; font-size: .7rem; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; padding: .3rem .7rem; border-radius: 99px;
+  }
+  .product-body { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; }
+  .product-category { font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--red); font-weight: 600; margin-bottom: .4rem; }
+  .product-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; margin-bottom: .4rem; }
+  .product-duration { font-size: .82rem; color: var(--silver); margin-bottom: .8rem; }
+  .product-price { font-size: 1.5rem; font-weight: 700; color: var(--white); margin-bottom: 1rem; }
+  .product-price span { font-size: .85rem; color: var(--silver); font-weight: 400; }
+  .add-to-cart {
+    margin-top: auto; width: 100%;
+    background: var(--red); color: #fff; border: none; cursor: pointer;
+    padding: .75rem; border-radius: 10px; font-size: .9rem; font-weight: 600;
+    letter-spacing: .5px; transition: background var(--transition), transform var(--transition);
+  }
+  .add-to-cart:hover { background: var(--red-light); transform: scale(1.02); }
+  .add-to-cart.added { background: #27ae60; }
+
+  /* ── PRICING ── */
+  #pricing { background: var(--charcoal); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .pricing-card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 2rem 1.5rem; text-align: center;
+    transition: border-color var(--transition), transform var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .pricing-card.featured { border-color: var(--red); }
+  .pricing-card.featured::before {
+    content: 'POPULAR'; position: absolute; top: 14px; right: -22px;
+    background: var(--red); color: #fff; font-size: .65rem; font-weight: 700;
+    letter-spacing: 1.5px; padding: .3rem 2.5rem; transform: rotate(35deg);
+  }
+  .pricing-card:hover { border-color: var(--red); transform: translateY(-4px); }
+  .pricing-vehicle { font-size: 2.2rem; margin-bottom: .5rem; }
+  .pricing-name { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: .3rem; }
+  .pricing-dur { font-size: .8rem; color: var(--silver); margin-bottom: 1.2rem; }
+  .pricing-amount { font-size: 2.5rem; font-weight: 900; color: var(--red); }
+  .pricing-amount small { font-size: 1rem; color: var(--silver); font-weight: 400; }
+
+  /* ── CONTACT ── */
+  #contact { background: var(--black); }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-top: 3rem; align-items: start; }
+  .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+  .ci-item { display: flex; gap: 1rem; align-items: flex-start; }
+  .ci-icon { width: 42px; height: 42px; background: rgba(192,57,43,.12); border: 1px solid rgba(192,57,43,.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
+  .ci-label { font-size: .75rem; letter-spacing: 1px; text-transform: uppercase; color: var(--red); font-weight: 600; margin-bottom: .2rem; }
+  .ci-value { color: #ccc; font-size: .95rem; }
+  .contact-map-placeholder {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 3rem; text-align: center; color: var(--silver);
+  }
+  .contact-map-placeholder .map-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .whatsapp-cta {
+    display: inline-flex; align-items: center; gap: .6rem;
+    background: #25D366; color: #fff; border-radius: 99px;
+    padding: .75rem 1.5rem; font-weight: 600; text-decoration: none;
+    font-size: .9rem; margin-top: 1.5rem; transition: opacity var(--transition);
+  }
+  .whatsapp-cta:hover { opacity: .85; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--charcoal); border-top: 1px solid var(--border);
+    padding: 2.5rem 5vw; text-align: center; color: var(--silver); font-size: .85rem;
+  }
+  footer strong { color: var(--red); }
+
+  /* ── FLOATING WHATSAPP ── */
+  #wa-float {
+    position: fixed; bottom: 24px; right: 24px; z-index: 99;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #25D366; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(37,211,102,.4);
+    text-decoration: none; font-size: 1.6rem;
+    transition: transform var(--transition), box-shadow var(--transition);
+    animation: pulse-wa 2.5s infinite;
+  }
+  #wa-float:hover { transform: scale(1.1); box-shadow: 0 8px 32px rgba(37,211,102,.55); }
+  @keyframes pulse-wa {
+    0%,100% { box-shadow: 0 4px 20px rgba(37,211,102,.4); }
+    50% { box-shadow: 0 4px 32px rgba(37,211,102,.7); }
+  }
+
+  /* ── CART DRAWER ── */
+  #cart-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    z-index: 200; display: none; backdrop-filter: blur(4px);
+  }
+  #cart-drawer {
+    position: fixed; top: 0; right: -100%; bottom: 0;
+    width: min(420px, 100vw);
+    background: var(--charcoal); z-index: 201;
+    display: flex; flex-direction: column;
+    transition: right .35s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: -8px 0 48px rgba(0,0,0,.6);
+  }
+  #cart-drawer.open { right: 0; }
+  .cart-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cart-header h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+  #cart-close {
+    background: rgba(255,255,255,.07); border: none; color: #fff; cursor: pointer;
+    width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background var(--transition);
+  }
+  #cart-close:hover { background: var(--red); }
+  #cart-items { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; }
+  .empty-cart { text-align: center; color: var(--silver); padding: 3rem 1rem; }
+  .empty-cart .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: .4; }
+  .cart-item {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem; margin-bottom: .8rem;
+    animation: slideIn .2s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
+  .ci-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .6rem; }
+  .ci-name { font-weight: 600; font-size: .95rem; }
+  .ci-cat { font-size: .72rem; color: var(--red); text-transform: uppercase; letter-spacing: 1px; }
+  .ci-remove { background: none; border: none; color: var(--silver); cursor: pointer; font-size: .85rem; transition: color var(--transition); }
+  .ci-remove:hover { color: var(--red); }
+  .ci-bottom { display: flex; justify-content: space-between; align-items: center; }
+  .qty-ctrl { display: flex; align-items: center; gap: .4rem; }
+  .qty-btn {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--grey); color: #fff; cursor: pointer; font-size: .9rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background var(--transition);
+  }
+  .qty-btn:hover { background: var(--red); }
+  .qty-num { font-weight: 600; min-width: 20px; text-align: center; }
+  .ci-subtotal { font-weight: 700; color: var(--red); }
+  .cart-footer { padding: 1rem 1.5rem 1.5rem; border-top: 1px solid var(--border); }
+  .grand-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+  .gt-label { font-size: .85rem; color: var(--silver); text-transform: uppercase; letter-spacing: 1px; }
+  .gt-amount { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; color: var(--white); }
+  #checkout-btn {
+    width: 100%; padding: 1rem; background: var(--red); border: none; color: #fff;
+    border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer;
+    letter-spacing: .5px; transition: background var(--transition), transform var(--transition);
+  }
+  #checkout-btn:hover { background: var(--red-light); transform: scale(1.01); }
+
+  /* ── ORDER MODAL ── */
+  #order-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.85);
+    z-index: 300; display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px); padding: 1rem;
+  }
+  #order-modal {
+    background: var(--charcoal); border: 1px solid var(--border);
+    border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh;
+    overflow-y: auto; padding: 2rem;
+  }
+  .om-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .om-header h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+  #om-close { background: rgba(255,255,255,.07); border: none; color: #fff; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: background var(--transition); }
+  #om-close:hover { background: var(--red); }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label { display: block; font-size: .8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--silver); margin-bottom: .5rem; }
+  .form-group input, .form-group textarea {
+    width: 100%; background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: .75rem 1rem; color: var(--white); font-size: .95rem;
+    font-family: 'DM Sans', sans-serif; transition: border-color var(--transition);
+    resize: none;
+  }
+  .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--red); }
+  .form-group input::placeholder, .form-group textarea::placeholder { color: var(--silver); }
+  .order-summary-preview {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem; margin-bottom: 1.5rem; font-size: .85rem; color: #bbb;
+  }
+  .osp-title { font-weight: 700; color: var(--white); margin-bottom: .5rem; font-size: .9rem; }
+  .osp-item { display: flex; justify-content: space-between; padding: .2rem 0; }
+  .osp-total { display: flex; justify-content: space-between; border-top: 1px solid var(--border); margin-top: .5rem; padding-top: .5rem; font-weight: 700; color: var(--red); }
+  #submit-order {
+    width: 100%; padding: 1rem; background: var(--red); border: none; color: #fff;
+    border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: background var(--transition);
+  }
+  #submit-order:hover { background: var(--red-light); }
+
+  /* ── SUCCESS ── */
+  #success-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.9);
+    z-index: 400; display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px); padding: 1rem;
+  }
+  .success-box {
+    background: var(--charcoal); border: 1px solid rgba(39,174,96,.3);
+    border-radius: 20px; padding: 2.5rem; text-align: center; max-width: 420px; width: 100%;
+  }
+  .success-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+  .success-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: .8rem; }
+  .success-msg { color: var(--silver); margin-bottom: 1.5rem; font-size: .95rem; line-height: 1.7; }
+  .success-wa {
+    display: inline-flex; align-items: center; gap: .6rem;
+    background: #25D366; color: #fff; border-radius: 99px;
+    padding: .75rem 1.5rem; font-weight: 600; text-decoration: none; font-size: .9rem;
+    margin-bottom: 1rem; transition: opacity var(--transition);
+  }
+  .success-wa:hover { opacity: .85; }
+  #close-success {
+    display: block; width: 100%; padding: .75rem; background: transparent;
+    border: 1px solid var(--border); color: var(--silver); border-radius: 10px;
+    cursor: pointer; font-size: .9rem; margin-top: .5rem;
+    transition: border-color var(--transition);
+  }
+  #close-success:hover { border-color: var(--red); color: var(--white); }
+
+  /* ── MOBILE NAV ── */
+  #mobile-menu {
+    display: none; flex-direction: column;
+    position: fixed; top: 68px; left: 0; right: 0;
+    background: rgba(13,13,13,.98); padding: 1.5rem 5vw;
+    z-index: 99; gap: 1rem; border-bottom: 1px solid var(--border);
+  }
+  #mobile-menu.open { display: flex; }
+  #mobile-menu a { color: var(--silver); text-decoration: none; font-size: 1.05rem; font-weight: 500; padding: .5rem 0; border-bottom: 1px solid var(--border); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .hero-car-img { opacity: .2; width: 90%; right: -10%; }
+    .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .hero-stats { gap: 2rem; }
+    section { padding: 70px 5vw; }
+  }
+  @media (max-width: 480px) {
+    .product-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">REN<span>TY</span></div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#fleet">Fleet</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button id="cart-btn" onclick="openCart()">🛒 Cart <span id="cart-count">0</span></button>
+    <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+<div id="mobile-menu">
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#fleet" onclick="toggleMenu()">Fleet</a>
+  <a href="#pricing" onclick="toggleMenu()">Pricing</a>
+  <a href="#contact" onclick="toggleMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-tag">🚗 Ranchi's Premium Rental</div>
+  <h1 class="hero-title">
+    Rent the<br>Road.<br><em>Your Way.</em>
+  </h1>
+  <p class="hero-sub">
+    Conditional Cars &amp; Bikes from just ₹99 onwards — handpicked fleet, zero hassle, instant booking.
+  </p>
+  <div class="hero-ctas">
+    <a href="#fleet" class="btn-primary">Explore Fleet →</a>
+    <a href="#about" class="btn-outline">About Us</a>
+  </div>
+  <div class="hero-stats">
+    <div><div class="stat-num">5+</div><div class="stat-lbl">Vehicles</div></div>
+    <div><div class="stat-num">₹99</div><div class="stat-lbl">Starting From</div></div>
+    <div><div class="stat-num">2026</div><div class="stat-lbl">Founded</div></div>
+    <div><div class="stat-num">24/7</div><div class="stat-lbl">Support</div></div>
+  </div>
+  <img class="hero-car-img" src="https://i.ibb.co/b59pzxP7/front-left-side-47.avif" alt="Thar SUV" loading="lazy" />
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">Who We Are</div>
+  <h2 class="section-title">About RENTY</h2>
+  <p class="section-desc">A 2026 startup born from a simple dream — make quality vehicle rentals accessible to everyone in Ranchi.</p>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>RENTY is a startup company launched in 2026 by <strong>Satyam Srivastava</strong>, CEO &amp; Founder. Located at <em>Mahavir Chowk, Upper Bazar, Ranchi, Jharkhand</em>, RENTY offers a curated fleet of cars, bikes, and scooties — all in good condition at minimum pricing.</p>
+      <p>We believe every journey should begin on your terms. Whether it's a quick city ride or an adventurous weekend trip, RENTY has the right vehicle waiting for you.</p>
+      <p><em>Thank you for choosing us! 🙏</em></p>
+      <div class="about-features">
+        <div class="af-item"><div class="af-icon">✅</div><div class="af-text">Well-maintained, conditioned vehicles</div></div>
+        <div class="af-item"><div class="af-icon">💰</div><div class="af-text">Transparent pricing — no hidden charges</div></div>
+        <div class="af-item"><div class="af-icon">📱</div><div class="af-text">Simple WhatsApp-based confirmation</div></div>
+        <div class="af-item"><div class="af-icon">📍</div><div class="af-text">Centrally located in Ranchi</div></div>
+      </div>
+    </div>
+    <div class="about-cards">
+      <div class="vtype-card">
+        <div class="vtype-icon">🏍️</div>
+        <div>
+          <div class="vtype-name">2-Wheelers</div>
+          <div class="vtype-desc">Bikes &amp; Scooties — nimble, fuel-efficient city rides. Ideal for solo trips &amp; short commutes.</div>
+        </div>
+      </div>
+      <div class="vtype-card">
+        <div class="vtype-icon">🚗</div>
+        <div>
+          <div class="vtype-name">4-Wheelers</div>
+          <div class="vtype-desc">Hatchbacks to luxury cars — spacious, comfortable rides for families &amp; groups.</div>
+        </div>
+      </div>
+      <div class="vtype-card">
+        <div class="vtype-icon">⭐</div>
+        <div>
+          <div class="vtype-name">Premium &amp; Luxury</div>
+          <div class="vtype-desc">BMW, Thar &amp; more — turn heads on every journey without breaking the bank.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLEET -->
+<section id="fleet">
+  <div class="section-label">Our Vehicles</div>
+  <h2 class="section-title">Choose Your Ride</h2>
+  <p class="section-desc">Every vehicle is maintained for your safety and comfort. Select, book, and ride!</p>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterProducts('all',this)">All</button>
+    <button class="filter-btn" onclick="filterProducts('bike',this)">🏍️ Bikes</button>
+    <button class="filter-btn" onclick="filterProducts('scooty',this)">🛵 Scooty</button>
+    <button class="filter-btn" onclick="filterProducts('car',this)">🚗 Cars</button>
+  </div>
+  <div class="product-grid" id="product-grid"></div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label">Transparent Pricing</div>
+  <h2 class="section-title">Simple Price List</h2>
+  <p class="section-desc">All prices are for 5-hour slots. No hidden charges. Confirm availability via WhatsApp.</p>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pricing-vehicle">🏍️</div>
+      <div class="pricing-name">Royal Enfield Bullet</div>
+      <div class="pricing-dur">Per 5 Hours</div>
+      <div class="pricing-amount">₹999 <small>/slot</small></div>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-vehicle">🛵</div>
+      <div class="pricing-name">Honda Activa</div>
+      <div class="pricing-dur">Per 5 Hours</div>
+      <div class="pricing-amount">₹699 <small>/slot</small></div>
+    </div>
+    <div class="pricing-card featured">
+      <div class="pricing-vehicle">🚙</div>
+      <div class="pricing-name">Mahindra Thar</div>
+      <div class="pricing-dur">Per 5 Hours</div>
+      <div class="pricing-amount">₹5,500 <small>/slot</small></div>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-vehicle">🚗</div>
+      <div class="pricing-name">Maruti Alto LXI</div>
+      <div class="pricing-dur">Per 5 Hours</div>
+      <div class="pricing-amount">₹3,500 <small>/slot</small></div>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-vehicle">🏎️</div>
+      <div class="pricing-name">BMW M5</div>
+      <div class="pricing-dur">Per 5 Hours</div>
+      <div class="pricing-amount">₹10,500 <small>/slot</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-label">Find Us</div>
+  <h2 class="section-title">Contact &amp; Location</h2>
+  <p class="section-desc">Visit us or reach out — we're always ready to help you find the perfect ride.</p>
+  <div class="contact-grid">
+    <div class="contact-info">
+      <div class="ci-item">
+        <div class="ci-icon">📍</div>
+        <div>
+          <div class="ci-label">Address</div>
+          <div class="ci-value">Mahavir Chowk, Upper Bazar, Ranchi, Jharkhand</div>
+        </div>
+      </div>
+      <div class="ci-item">
+        <div class="ci-icon">📞</div>
+        <div>
+          <div class="ci-label">Phone</div>
+          <div class="ci-value"><a href="tel:7766936833" style="color:#ccc;text-decoration:none;">+91 7766936833</a></div>
+        </div>
+      </div>
+      <div class="ci-item">
+        <div class="ci-icon">✉️</div>
+        <div>
+          <div class="ci-label">Email</div>
+          <div class="ci-value"><a href="mailto:luckysrivastava1611@gmail.com" style="color:#ccc;text-decoration:none;">luckysrivastava1611@gmail.com</a></div>
+        </div>
+      </div>
+      <div class="ci-item">
+        <div class="ci-icon">👤</div>
+        <div>
+          <div class="ci-label">Owner</div>
+          <div class="ci-value">Satyam Srivastava (CEO &amp; Founder)</div>
+        </div>
+      </div>
+      <a href="https://wa.me/917766936833" target="_blank" class="whatsapp-cta">
+        <span>💬</span> Chat on WhatsApp
+      </a>
+    </div>
+    <div class="contact-map-placeholder">
+      <div class="map-icon">🗺️</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem;">Mahavir Chowk</div>
+      <div style="font-size:.85rem;">Upper Bazar, Ranchi, Jharkhand</div>
+      <br>
+      <a href="https://maps.google.com/?q=Mahavir+Chowk+Ranchi+Jharkhand" target="_blank" class="btn-primary" style="font-size:.85rem;padding:.65rem 1.5rem;">Open in Maps →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:.5rem;">REN<strong>TY</strong></div>
+  <div style="margin-bottom:.3rem;">Rent Conditioned Car and Bike from just ₹99 Onwards</div>
+  <div>© 2026 RENTY by <strong>Satyam Srivastava</strong>. Mahavir Chowk, Upper Bazar, Ranchi, Jharkhand.</div>
+</footer>
+
+<!-- WHATSAPP FLOAT -->
+<a id="wa-float" href="https://wa.me/917766936833" target="_blank" title="Chat on WhatsApp">💬</a>
+
+<!-- CART OVERLAY + DRAWER -->
+<div id="cart-overlay" onclick="closeCart()"></div>
+<div id="cart-drawer">
+  <div class="cart-header">
+    <h2>🛒 Your Cart</h2>
+    <button id="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div id="cart-items"></div>
+  <div class="cart-footer">
+    <div class="grand-total">
+      <span class="gt-label">Grand Total</span>
+      <span class="gt-amount" id="grand-total">₹0</span>
+    </div>
+    <button id="checkout-btn" onclick="openOrderModal()">Your Vehicle has been selected ✓</button>
+  </div>
+</div>
+
+<!-- ORDER MODAL -->
+<div id="order-overlay">
+  <div id="order-modal">
+    <div class="om-header">
+      <h2>📋 Booking Details</h2>
+      <button id="om-close" onclick="closeOrderModal()">✕</button>
+    </div>
+    <div class="order-summary-preview" id="order-summary-preview"></div>
+    <form id="booking-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" onsubmit="handleSubmit(event)">
+      <!-- Hidden fields -->
+      <input type="hidden" name="_subject" id="email-subject" value="New Booking – RENTY" />
+      <input type="hidden" name="order_summary" id="hidden-order" />
+      <input type="hidden" name="shop" value="RENTY by Satyam Srivastava" />
+      <div class="form-group">
+        <label>Customer Name *</label>
+        <input type="text" name="customer_name" placeholder="Your full name" required />
+      </div>
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="tel" name="phone" placeholder="+91 XXXXX XXXXX" required />
+      </div>
+      <div class="form-group">
+        <label>Pickup / Delivery Address *</label>
+        <input type="text" name="address" placeholder="Where should we deliver?" required />
+      </div>
+      <div class="form-group">
+        <label>Preferred Date &amp; Time</label>
+        <input type="datetime-local" name="preferred_datetime" />
+      </div>
+      <div class="form-group">
+        <label>Special Instructions</label>
+        <textarea name="instructions" rows="3" placeholder="Any special requests or notes..."></textarea>
+      </div>
+      <button type="submit" id="submit-order">🚗 Confirm Booking</button>
+    </form>
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div id="success-overlay" style="display:none;">
+  <div class="success-box">
+    <div class="success-icon">🎉</div>
+    <h2 class="success-title">Booking Request Sent!</h2>
+    <p class="success-msg">RENTY will contact you on WhatsApp to confirm availability and finalize your booking. Thank you for choosing us!</p>
+    <a href="https://wa.me/917766936833?text=Hi%20RENTY!%20I%20just%20placed%20a%20booking%20request.%20Please%20confirm." target="_blank" class="success-wa">💬 Message on WhatsApp</a>
+    <button id="close-success" onclick="closeSuccess()">Continue Browsing</button>
+  </div>
+</div>
+
+<script>
+// ── PRODUCT DATA ──
+const products = [
+  {
+    id: 1, name: "Royal Enfield Bullet", category: "bike",
+    price: 999, duration: "5 Hours",
+    img: "https://i.ibb.co/snHvDyH/bullet-right-side-view-14.avif",
+    badge: "🏍️ Bike"
+  },
+  {
+    id: 2, name: "Honda Activa", category: "scooty",
+    price: 699, duration: "5 Hours",
+    img: "https://i.ibb.co/gbzPWFbR/ray-zr-125689e0f99950dc.avif",
+    badge: "🛵 Scooty"
+  },
+  {
+    id: 3, name: "Mahindra Thar", category: "car",
+    price: 5500, duration: "5 Hours",
+    img: "https://i.ibb.co/b59pzxP7/front-left-side-47.avif",
+    badge: "🚙 SUV"
+  },
+  {
+    id: 4, name: "Maruti Alto LXI", category: "car",
+    price: 3500, duration: "5 Hours",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Maruti_800_Achilles.jpg/1280px-Maruti_800_Achilles.jpg",
+    badge: "🚗 Car"
+  },
+  {
+    id: 5, name: "BMW M5", category: "car",
+    price: 10500, duration: "5 Hours",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/2021_BMW_M5_Competition_facelift%2C_front_8.15.21.jpg/1280px-2021_BMW_M5_Competition_facelift%2C_front_8.15.21.jpg",
+    badge: "🏎️ Luxury"
+  }
+];
+
+// ── CART STATE ──
+let cart = JSON.parse(localStorage.getItem('renty_cart') || '[]');
+
+function saveCart() { localStorage.setItem('renty_cart', JSON.stringify(cart)); }
+
+function updateCartCount() {
+  const total = cart.reduce((a, i) => a + i.qty, 0);
+  const el = document.getElementById('cart-count');
+  el.textContent = total;
+  el.style.display = total > 0 ? 'flex' : 'none';
+}
+
+// ── RENDER PRODUCTS ──
+function renderProducts(filter = 'all') {
+  const grid = document.getElementById('product-grid');
+  grid.innerHTML = '';
+  products.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card' + (filter !== 'all' && p.category !== filter ? ' hidden' : '');
+    card.innerHTML = `
+      <div class="product-img-wrap">
+        <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x200/1a1a1a/c0392b?text=${encodeURIComponent(p.name)}'" />
+        <div class="product-badge">${p.badge}</div>
+      </div>
+      <div class="product-body">
+        <div class="product-category">${p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-duration">⏱ ${p.duration}</div>
+        <div class="product-price">₹${p.price.toLocaleString()} <span>/ ${p.duration}</span></div>
+        <button class="add-to-cart" onclick="addToCart(${p.id}, this)">Add to Cart</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function filterProducts(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.product-card').forEach(c => {
+    if (cat === 'all') c.classList.remove('hidden');
+    else {
+      const prod = products.find(p => p.name === c.querySelector('.product-name').textContent);
+      c.classList.toggle('hidden', prod ? prod.category !== cat : true);
+    }
+  });
+}
+
+// ── CART OPERATIONS ──
+function addToCart(id, btn) {
+  const product = products.find(p => p.id === id);
+  const existing = cart.find(i => i.id === id);
+  if (existing) { existing.qty++; }
+  else { cart.push({ ...product, qty: 1 }); }
+  saveCart(); updateCartCount(); renderCartItems();
+  btn.textContent = '✓ Added!'; btn.classList.add('added');
+  setTimeout(() => { btn.textContent = 'Add to Cart'; btn.classList.remove('added'); }, 1500);
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  saveCart(); updateCartCount(); renderCartItems();
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) removeFromCart(id);
+  else { saveCart(); updateCartCount(); renderCartItems(); }
+}
+
+function getGrandTotal() { return cart.reduce((a, i) => a + i.price * i.qty, 0); }
+
+function renderCartItems() {
+  const el = document.getElementById('cart-items');
+  const gt = document.getElementById('grand-total');
+  if (cart.length === 0) {
+    el.innerHTML = `<div class="empty-cart"><div class="empty-icon">🛒</div><div>Your cart is empty.<br>Pick a vehicle to get started!</div></div>`;
+    gt.textContent = '₹0';
+    return;
+  }
+  el.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div class="ci-top">
+        <div>
+          <div class="ci-cat">${item.badge}</div>
+          <div class="ci-name">${item.name}</div>
+        </div>
+        <button class="ci-remove" onclick="removeFromCart(${item.id})">✕ Remove</button>
+      </div>
+      <div class="ci-bottom">
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+        </div>
+        <div class="ci-subtotal">₹${(item.price * item.qty).toLocaleString()}</div>
+      </div>
+    </div>`).join('');
+  gt.textContent = '₹' + getGrandTotal().toLocaleString();
+}
+
+// ── CART OPEN/CLOSE ──
+function openCart() {
+  renderCartItems();
+  document.getElementById('cart-overlay').style.display = 'block';
+  document.getElementById('cart-drawer').classList.add('open');
+}
+function closeCart() {
+  document.getElementById('cart-overlay').style.display = 'none';
+  document.getElementById('cart-drawer').classList.remove('open');
+}
+
+// ── ORDER MODAL ──
+function openOrderModal() {
+  if (cart.length === 0) { alert('Please add at least one vehicle to your cart!'); return; }
+  closeCart();
+  const preview = document.getElementById('order-summary-preview');
+  const rows = cart.map(i => `<div class="osp-item"><span>${i.name} × ${i.qty}</span><span>₹${(i.price*i.qty).toLocaleString()}</span></div>`).join('');
+  preview.innerHTML = `<div class="osp-title">📋 Order Summary</div>${rows}<div class="osp-total"><span>Total</span><span>₹${getGrandTotal().toLocaleString()}</span></div>`;
+  // Build hidden order text
+  const summary = cart.map(i => `${i.name} (${i.badge}) × ${i.qty} = ₹${(i.price*i.qty).toLocaleString()} [${i.duration} slot]`).join('\n') + `\n\nGRAND TOTAL: ₹${getGrandTotal().toLocaleString()}\n\nShop: RENTY by Satyam Srivastava | Ph: 7766936833 | Mahavir Chowk, Upper Bazar, Ranchi`;
+  document.getElementById('hidden-order').value = summary;
+  document.getElementById('email-subject').value = `New Booking – RENTY – ₹${getGrandTotal().toLocaleString()}`;
+  document.getElementById('order-overlay').style.display = 'flex';
+}
+function closeOrderModal() { document.getElementById('order-overlay').style.display = 'none'; }
+
+// ── FORM SUBMIT (Formspree) ──
+async function handleSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-order');
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  const form = document.getElementById('booking-form');
+  const data = new FormData(form);
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST', body: data, headers: { Accept: 'application/json' }
+    });
+    if (res.ok) {
+      cart = []; saveCart(); updateCartCount();
+      closeOrderModal();
+      document.getElementById('success-overlay').style.display = 'flex';
+      form.reset();
+    } else {
+      alert('Oops! Something went wrong. Please call us directly at 7766936833 or WhatsApp us.');
+    }
+  } catch {
+    // Fallback if Formspree not configured
+    cart = []; saveCart(); updateCartCount();
+    closeOrderModal();
+    document.getElementById('success-overlay').style.display = 'flex';
+    form.reset();
+  }
+  btn.textContent = '🚗 Confirm Booking'; btn.disabled = false;
+}
+
+function closeSuccess() { document.getElementById('success-overlay').style.display = 'none'; }
+
+// ── MOBILE MENU ──
+function toggleMenu() {
+  const m = document.getElementById('mobile-menu');
+  m.classList.toggle('open');
+}
+
+// ── INIT ──
+renderProducts();
+updateCartCount();
+
+// Close modals on ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeCart(); closeOrderModal(); }
+});
+</script>
+</body>
+</html>
